@@ -17,6 +17,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 	@IBOutlet weak var sceneView: ARSCNView!
   
   var initialized:Bool = false
+  var robot: Robot?
 
 	// MARK: - View Life Cycle
 	
@@ -42,7 +43,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         */
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = .horizontal
-        sceneView.debugOptions = ARSCNDebugOptions.showWorldOrigin;
+        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin, ARSCNDebugOptions.showFeaturePoints];
         sceneView.autoenablesDefaultLighting = true;
         sceneView.session.run(configuration)
       
@@ -70,43 +71,56 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     /// - Tag: PlaceARContent
 	func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        // Place content only for anchors found by plane detection.
-        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
-
-        // Create a SceneKit plane to visualize the plane anchor using its position and extent.
-        let plane = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
-        let planeNode = SCNNode(geometry: plane)
-        planeNode.simdPosition = float3(planeAnchor.center.x, 0, planeAnchor.center.z)
-        
-        /*
-         `SCNPlane` is vertically oriented in its local coordinate space, so
-         rotate the plane to match the horizontal orientation of `ARPlaneAnchor`.
-        */
-        planeNode.eulerAngles.x = -.pi / 2
-        
-        // Make the plane visualization semitransparent to clearly show real-world placement.
-        planeNode.opacity = 0.25
-        
-        /*
-         Add the plane visualization to the ARKit-managed node so that it tracks
-         changes in the plane anchor as plane estimation continues.
-        */
-        node.addChildNode(planeNode)
+    
+    // Place content only for anchors found by plane detection.
+//        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+//
+//        // Create a SceneKit plane to visualize the plane anchor using its position and extent.
+//        let plane = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
+//        let planeNode = SCNNode(geometry: plane)
+//        planeNode.simdPosition = float3(planeAnchor.center.x, 0, planeAnchor.center.z)
+//
+//        /*
+//         `SCNPlane` is vertically oriented in its local coordinate space, so
+//         rotate the plane to match the horizontal orientation of `ARPlaneAnchor`.
+//        */
+//        planeNode.eulerAngles.x = -.pi / 2
+//
+//        // Make the plane visualization semitransparent to clearly show real-world placement.
+//        planeNode.opacity = 0.25
+//
+//        /*
+//         Add the plane visualization to the ARKit-managed node so that it tracks
+//         changes in the plane anchor as plane estimation continues.
+//        */
+//        node.addChildNode(planeNode)
     
     if !self.initialized {
       self.initialized = true;
-      let robot = Robot()
+      self.robot = Robot()
            
-      self.sceneView.scene.rootNode.addChildNode(robot)
+      //self.sceneView.scene.rootNode.addChildNode(robot!)
 //      node.addChildNode(robot);
     }
 	}
+  
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    let touch = touches.first!
+    let location = touch.location(in: sceneView)
+      let hitResults = sceneView.hitTest(location, types: .existingPlaneUsingExtent)
+      if hitResults.count > 0 {
+        let result: ARHitTestResult = hitResults.first!
+        
+        let newLocation = SCNVector3Make(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
+        self.robot?.position = newLocation
+      }
+  }
   
   
 
     /// - Tag: UpdateARContent
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
-//        // Update content only for plane anchors and nodes matching the setup created in `renderer(_:didAdd:for:)`.
+        // Update content only for plane anchors and nodes matching the setup created in `renderer(_:didAdd:for:)`.
 //        guard let planeAnchor = anchor as?  ARPlaneAnchor,
 //            let planeNode = node.childNodes.first,
 //            let plane = planeNode.geometry as? SCNPlane
