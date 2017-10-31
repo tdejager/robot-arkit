@@ -9,15 +9,15 @@ import UIKit
 import SceneKit
 import ARKit
 
-class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SCNSceneRendererDelegate {
 	// MARK: - IBOutlets
 
     @IBOutlet weak var sessionInfoView: UIView!
 	@IBOutlet weak var sessionInfoLabel: UILabel!
 	@IBOutlet weak var sceneView: ARSCNView!
+  var robot: Robot!
   
   var initialized:Bool = false
-  var robot: Robot?
 
 	// MARK: - View Life Cycle
 	
@@ -49,6 +49,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
       
         // Set a delegate to track the number of plane anchors for providing UI feedback.
         sceneView.session.delegate = self
+        sceneView.delegate = self
         
         /*
          Prevent the screen from being dimmed after a while as users will likely
@@ -95,12 +96,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 //        */
 //        node.addChildNode(planeNode)
     
-    if !self.initialized {
-      self.initialized = true;
+    if self.robot == nil {
       self.robot = Robot()
-           
-      //self.sceneView.scene.rootNode.addChildNode(robot!)
-//      node.addChildNode(robot);
+      self.sceneView.scene.rootNode.addChildNode(self.robot)
     }
 	}
   
@@ -116,8 +114,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
       }
   }
   
-  
-
+  func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval)
+  {
+    
+  }
     /// - Tag: UpdateARContent
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
         // Update content only for plane anchors and nodes matching the setup created in `renderer(_:didAdd:for:)`.
