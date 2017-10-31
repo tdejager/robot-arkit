@@ -44,15 +44,16 @@ class Robot : SCNNode {
     self.addChildNode(base)
     
     self.updateFromJoints(joints: [-1.60, -1.73, -2.20, -0.81, 1.60, -0.03])
+    //self.updateFromJoints(joints: [0,0,0,0,0,0])
   }
   
   public func updateFromJoints(joints: [Float]) {
-    self.shoulder.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(joints[0], 1.0, 0.0, 0.0), SCNMatrix4MakeTranslation(0.0, 0.1273, 0.0))
-    self.upperarm.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(1.570796325+joints[1], 0.0, 0.0, -1.0), SCNMatrix4MakeTranslation(0.0, 0.0, -0.220941))
-    self.forearm.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(0+joints[2], 1.0, 0.0, 0.0), SCNMatrix4MakeTranslation(0.0, 0.612, 0.1719))
-    self.wrist1.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(1.570796325+joints[3], 0.0, 0.0, -1.0), SCNMatrix4MakeTranslation(0.0, 0.5723, 0.0))
-    self.wrist2.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(0+joints[4], 1.0, 0.0, 0.0), SCNMatrix4MakeTranslation(0.0, 0.0, -0.1149))
-    self.wrist3.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(0+joints[5], 1.0, 0.0, 0.0), SCNMatrix4MakeTranslation(0.0, 0.1157, 0.0))
+    self.shoulder.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(joints[0], 0.0, 1.0, 0.0), SCNMatrix4MakeTranslation(0.0, 0.1273, 0.0))
+    self.upperarm.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(Float.pi*0.5+joints[1], 0.0, 0.0, -1.0), SCNMatrix4MakeTranslation(0.0, 0.0, -0.220941))
+    self.forearm.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(joints[2], 0.0, 0.0, -1.0), SCNMatrix4MakeTranslation(0.0, 0.612, 0.1719))
+    self.wrist1.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(Float.pi*0.5+joints[3], 0.0, 0.0, -1.0), SCNMatrix4MakeTranslation(0.0, 0.5723, 0.0))
+    self.wrist2.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(joints[4], 0.0, 1.0, 0.0), SCNMatrix4MakeTranslation(0.0, 0.0, -0.1149))
+    self.wrist3.transform = SCNMatrix4Mult(SCNMatrix4MakeRotation(joints[5], 0.0, 0.0, -1.0), SCNMatrix4MakeTranslation(0.0, 0.1157, 0.0))
   }
   
   private func createPart(name:String)->SCNNode {
