@@ -18,6 +18,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
   var robot: Robot!
   
   var initialized:Bool = false
+  var joint_positions:[[Float]] = [
+    [-0.50, -2.09, -1.40, -1.21, 1.60, 1.07],
+    [-0.50, -2.33, -1.56, -0.81, 1.60, 1.07],
+    [-0.50, -2.09, -1.40, -1.21, 1.60, 1.07],
+    [-2.19, -2.08, -1.67, -1.00, 1.58, -0.62],
+    [-2.19, -2.27, -1.73, -0.75, 1.58, -0.62],
+    [-2.19, -2.08, -1.67, -1.00, 1.58, -0.62],
+    [-3.02, -1.78, -2.20, 0.80, 1.48, -1.63],
+    [-3.05, -2.07, -1.76, 0.65, 1.51, -1.63],
+    [-3.02, -1.78, -2.20, 0.80, 1.48, -1.63],
+    [-1.56, -0.65, -2.49, -1.50, 1.52, -1.30],
+  ]
+  var currentIndex = 0;
 
 	// MARK: - View Life Cycle
 	
@@ -114,9 +127,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
       }
   }
   
-  func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval)
-  {
-    
+  func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+    if robot != nil {
+      let frameLength = 1.0
+      let normalizedTime = (Float)((time / frameLength).truncatingRemainder(dividingBy: (Double)(joint_positions.count)))
+      let currentFrame = (Int)(floor(normalizedTime))
+      let nextFrame = (currentFrame+1) % joint_positions.count
+      var t = normalizedTime.truncatingRemainder(dividingBy: 1)
+      t = 0.5 * (1.0 - cos(t * Float.pi))
+      var joints:[Float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      for index in 0...5 {
+        let a = joint_positions[currentFrame][index]
+        let b = joint_positions[nextFrame][index]
+        joints[index] = a+(b-a)*t
+      }
+      robot.updateFromJoints(joints: joints)
+    }
   }
     /// - Tag: UpdateARContent
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
